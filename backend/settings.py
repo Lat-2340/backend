@@ -27,7 +27,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# custom user model
 AUTH_USER_MODEL = 'users.CustomUser'
+
+# django-phonenumber-field
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
+PHONENUMBER_DEFAULT_REGION = 'US'
 
 # Application definition
 

@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 from .serializers import UserSerializer
 
 
-class NewUserView(CreateAPIView):
+class RegisterView(CreateAPIView):
   model = get_user_model()
   permission_classes = [ permissions.AllowAny ]
   serializer_class = UserSerializer

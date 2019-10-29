@@ -62,7 +62,7 @@ class FoundItem(Item):
     app_label = 'lostandfound'
 
 class LostandfoundRouter(object):
-  '''A router to control all database operations on models in the lostandfound application'''
+  ''' Router to control all database operations on models in the lostandfound application '''
 
   def db_for_read(self, model, **hints):
     if model._meta.app_label == 'lostandfound':

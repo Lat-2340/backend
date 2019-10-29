@@ -11,12 +11,13 @@ from .serializers import UserSerializer
 
 
 class UserRegisterView(generics.CreateAPIView):
+  ''' View for user registration '''
   model = get_user_model()
   permission_classes = [ permissions.AllowAny ]
   serializer_class = UserSerializer
 
 class TokenDestroyView(views.APIView):
-  ''' for user token expiration / logout '''
+  ''' View for user token expiration / logout '''
   def post(self, request):
     try:
       request.user.auth_token.delete()

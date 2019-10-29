@@ -39,8 +39,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-
+    'corsheaders',
     'phonenumber_field',
+
     'users.apps.UsersConfig',
 ]
 
@@ -60,10 +61,15 @@ REST_FRAMEWORK = {
     ],
 }
 
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:3000' # NOTE: for local testing
+]
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',

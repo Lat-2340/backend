@@ -24,6 +24,17 @@ class Organization(models.Model):
   def __str__(self):
     return self.orgname
 
+class Office(models.Model):
+  address = models.CharField(max_length=70, primary_key=True)
+  org = models.ForeignKey(Organization, on_delete=models.CASCADE)
+  office = models.CharField(max_length=30)
+  phone_number = PhoneNumberField(blank=True, null=True)
+  website = models.URLField(blank=True, null=True)
+
+  def __str__(self):
+    rep = "office: {0}, org: {1}, address: {2}"
+    return rep.format(self.office, self.org, self.address)
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
   username = models.CharField(max_length=20, unique=True)
   email = models.EmailField(blank=False)

@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'phonenumber_field',
 
     'users.apps.UsersConfig',
+    'lostandfound.apps.LostandfoundConfig',
 ]
 
 # custom user model
@@ -104,9 +105,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
+    'mongo': {
+        'ENGINE': 'djongo',
+        'NAME': 'mongodb',
+    },
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

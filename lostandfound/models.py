@@ -10,7 +10,7 @@ class GeoLocation(models.Model):
   def __str__(self):
     return 'lat: {0}, long: {1}'.format(self.latitude, self.longitude)
 
-# shortened version of users.models.Office
+# shortened version of users.models.PickupLocation
 class PickupLocation(models.Model):
   address = models.CharField(max_length=70, primary_key=True)
   office = models.CharField(max_length=30)
@@ -40,7 +40,7 @@ class Item(models.Model):
   location = models.EmbeddedModelField(
     model_container=GeoLocation,
   )
-  features = models.TextField(max_length=150)
+  description = models.TextField(max_length=150)
 
   objects = models.DjongoManager()
 

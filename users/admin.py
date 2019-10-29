@@ -1,5 +1,5 @@
 from django.contrib import admin
 
-from .models import Organization, Office, CustomUser
+from .models import Organization, PickupLocation, CustomUser
 
-admin.site.register([Organization, Office, CustomUser])
+admin.site.register([Organization, PickupLocation, CustomUser])

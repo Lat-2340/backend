@@ -21,15 +21,21 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 class Organization(models.Model):
   orgname = models.CharField(max_length=30, primary_key=True)
 
+  class Meta:
+    db_table = 'Organization'
+
   def __str__(self):
     return self.orgname
 
-class Office(models.Model):
+class PickupLocation(models.Model):
   address = models.CharField(max_length=70, primary_key=True)
   org = models.ForeignKey(Organization, on_delete=models.CASCADE)
   office = models.CharField(max_length=30)
   phone_number = PhoneNumberField(blank=True, null=True)
   website = models.URLField(blank=True, null=True)
+
+  class Meta:
+    db_table = 'PickupLocation'
 
   def __str__(self):
     rep = "office: {0}, org: {1}, address: {2}"

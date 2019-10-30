@@ -45,3 +45,15 @@ def addFoundItemView(request):
     {"detail": _("Added found item %s." % item.id)},
     status=status.HTTP_201_CREATED
   )
+
+@api_view(['GET'])
+def getItems(request):
+  username = request.user.username
+  lost_items = [item.to_json() for item in Item.objects(user=username)]
+  found_items = [item.to_json() for item in FoundItem.objects(user=username)]
+  return Response(
+    data={
+      'lost_items': lost_items,
+      'found_items': found_items,
+    },
+  )

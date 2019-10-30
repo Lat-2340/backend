@@ -4,6 +4,7 @@ from mongoengine import *
 connect('item')
 
 class Item(Document):
+  user = StringField()
   features = ListField()
   date_time = DateTimeField(default=datetime.now())
   location = GeoPointField()
@@ -14,13 +15,13 @@ class Item(Document):
   }
 
   def __str__(self):
-    rep = 'features: {0}, location: {1}, date_time: {2}, description: {3}'
-    return rep.format(self.features, self.location, self.date_time, self.description)
+    rep = 'user: {0}, features: {1}, location: {2}, date_time: {3}, description: {4}'
+    return rep.format(self.user, self.features, self.location, self.date_time, self.description)
 
 class FoundItem(Item):
   image = ImageField()
   pickup_address = StringField(max_length=70)
 
   def __str__(self):
-    rep = 'features: {0}, location: {1}, pickup: {2}, date_time: {3}, description: {4}'
-    return rep.format(self.features, self.location, self.pickup_address, self.date_time,  self.description)
+    rep = 'user: {0}, features: {1}, location: {2}, pickup: {3}, date_time: {4}, description: {5}'
+    return rep.format(self.user, self.features, self.location, self.pickup_address, self.date_time,  self.description)

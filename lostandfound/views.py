@@ -16,10 +16,14 @@ def indexView(request):
 def addLostItemView(request):
   try:
     item = Item(**request.data)
+    item.user = request.user.username
     item.save()
     print(item.id, item)
   except ValidationError as e:
-    return Response({"error": _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
+    return Response(
+      {"error": _(str(e))},
+      status=status.HTTP_400_BAD_REQUEST
+    )
   return Response(
     {"detail": _("Added lost item %s." % item.id)},
     status=status.HTTP_201_CREATED
@@ -29,6 +33,7 @@ def addLostItemView(request):
 def addFoundItemView(request):
   try:
     item = FoundItem(**request.data)
+    item.user = request.user.username
     item.save()
     print(item.id, item)
   except ValidationError as e:

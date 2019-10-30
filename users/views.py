@@ -9,11 +9,11 @@ from rest_framework.decorators import api_view
 
 from .serializers import UserSerializer
 
-
+# REFACTOR: user ViewSet (for updates)
 class UserRegisterView(generics.CreateAPIView):
   ''' View for user registration '''
   model = get_user_model()
-  permission_classes = [ permissions.AllowAny ]
+  permission_classes = [ permissions.AllowAny ] # override the default permission
   serializer_class = UserSerializer
 
 class TokenDestroyView(views.APIView):
@@ -31,8 +31,8 @@ def dictfetchall(cursor):
   return [ dict(zip(columns, row)) for row in cursor.fetchall() ]
 
 @api_view(['GET'])
-def get_user_offices_view(request):
-  ''' Returns list of office info matched with user organization '''
+def getPickupLocationsView(request):
+  ''' Return list of pickup locations matched with user organization '''
   with connections['default'].cursor() as cursor:
     cursor.execute("SELECT * FROM PickupLocation WHERE org_id = %s", [request.user.org.orgname])
     return Response(dictfetchall(cursor))

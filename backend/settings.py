@@ -60,6 +60,9 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
 }
 
 CORS_ORIGIN_WHITELIST = [
@@ -105,14 +108,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'usersdb',
-    },
-    'mongo': {
-        'ENGINE': 'djongo',
-        'NAME': 'itemsdb',
-    },
+    }
 }
-
-DATABASE_ROUTERS = ['lostandfound.models.LostandfoundRouter']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators

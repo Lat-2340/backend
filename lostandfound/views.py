@@ -17,17 +17,26 @@ def addLostItemView(request):
   try:
     item = Item(**request.data)
     item.save()
-    print(item)
+    print(item.id, item)
   except ValidationError as e:
     return Response({"error": _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
-  return Response({"detail": _("Added lost item.")}, status=status.HTTP_201_CREATED)
+  return Response(
+    {"detail": _("Added lost item %s." % item.id)},
+    status=status.HTTP_201_CREATED
+  )
 
 @api_view(['POST'])
 def addFoundItemView(request):
   try:
     item = FoundItem(**request.data)
     item.save()
-    print(item)
+    print(item.id, item)
   except ValidationError as e:
-    return Response({"error": _(str(e))}, status=status.HTTP_400_BAD_REQUEST)
-  return Response({"detail": _("Added found item.")}, status=status.HTTP_201_CREATED)
+    return Response(
+      {"error": _(str(e))},
+      status=status.HTTP_400_BAD_REQUEST
+    )
+  return Response(
+    {"detail": _("Added found item %s." % item.id)},
+    status=status.HTTP_201_CREATED
+  )

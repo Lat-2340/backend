@@ -42,7 +42,7 @@ class PickupLocation(models.Model):
     return rep.format(self.office, self.org, self.address)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-  username = models.CharField(max_length=20, unique=True)
+  username = models.CharField(max_length=20, primary_key=True)
   email = models.EmailField(blank=False)
   phone_number = PhoneNumberField(blank=True, null=True)
   org = models.ForeignKey(Organization, on_delete=models.CASCADE)

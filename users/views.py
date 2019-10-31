@@ -8,12 +8,18 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
 from .serializers import UserSerializer
+from .models import CustomUser
+from .permissions import IsOwner
 
-# REFACTOR: user ViewSet (for updates)
 class UserRegisterView(generics.CreateAPIView):
   ''' View for user registration '''
   model = get_user_model()
   permission_classes = [ permissions.AllowAny ] # override the default permission
+  serializer_class = UserSerializer
+
+class UserUpdateView(generics.RetrieveUpdateDestroyAPIView):
+  queryset = CustomUser.objects.all()
+  permission_classes = [ IsOwner ]
   serializer_class = UserSerializer
 
 class TokenDestroyView(views.APIView):

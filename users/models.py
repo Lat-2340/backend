@@ -43,9 +43,8 @@ class PickupLocation(models.Model):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
   username = models.CharField(max_length=20, unique=True)
-  email = models.EmailField(blank=False)
-  phone_number = PhoneNumberField(null=True, blank=True)
-  org_userid = models.CharField(max_length=10, help_text="id number at your organization") # QUESTION remove this field?
+  email = models.EmailField(null=True, blank=True)
+  phone_number = PhoneNumberField(blank=False)
   org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
   is_staff = models.BooleanField(default=False)

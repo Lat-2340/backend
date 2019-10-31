@@ -43,8 +43,8 @@ class PickupLocation(models.Model):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
   username = models.CharField(max_length=20, unique=True)
-  email = models.EmailField(null=True, blank=True)
-  phone_number = PhoneNumberField(blank=False)
+  email = models.EmailField(blank=False)
+  phone_number = PhoneNumberField(blank=True, null=True)
   org = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
   is_staff = models.BooleanField(default=False)
@@ -52,7 +52,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
   date_joined = models.DateTimeField(default=timezone.now)
 
   USERNAME_FIELD = 'username'
-  REQUIRED_FIELDS = ['phone_number', 'org']
+  REQUIRED_FIELDS = ['email', 'org']
 
   objects = UserManager()
 

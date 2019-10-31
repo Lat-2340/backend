@@ -5,7 +5,7 @@ from django.db import connections
 
 from rest_framework import permissions, generics, views, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 
 from .serializers import UserSerializer
 
@@ -35,4 +35,12 @@ def getPickupLocationsView(request):
   ''' Return list of pickup locations matched with user organization '''
   with connections['default'].cursor() as cursor:
     cursor.execute("SELECT * FROM PickupLocation WHERE org_id = %s", [request.user.org.orgname])
+    return Response(dictfetchall(cursor))
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def getOrganizationsView(request):
+  ''' Return list of organizations '''
+  with connections['default'].cursor() as cursor:
+    cursor.execute("SELECT * FROM Organization")
     return Response(dictfetchall(cursor))

@@ -5,7 +5,7 @@ connect('item')
 
 class Item(Document):
   user = StringField()
-  features = ListField()
+  features = ListField(required=True)
   date_time = DateTimeField(default=datetime.now())
   location = GeoPointField()
   description = StringField(max_length=150)
@@ -20,7 +20,7 @@ class Item(Document):
 
 class FoundItem(Item):
   image = ImageField()
-  pickup_address = StringField(max_length=70)
+  pickup_address = StringField(max_length=70, required=True)
 
   def __str__(self):
     rep = 'user: {0}, features: {1}, location: {2}, pickup: {3}, date_time: {4}, description: {5}'

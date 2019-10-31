@@ -22,6 +22,8 @@ class UserUpdateView(generics.RetrieveUpdateDestroyAPIView):
   permission_classes = [ IsOwner ]
   serializer_class = UserSerializer
 
+  # TODO forbit updating other's record
+
 class TokenDestroyView(views.APIView):
   ''' View for user token expiration / logout '''
   def post(self, request):

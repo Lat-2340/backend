@@ -10,44 +10,82 @@ in the HTTP header.
 
 ## users app
 
-* `POST /users/register`
+* `/users/register`
+    * `POST`
 
-  Required fields: username, password, phone_number, org
+      Required fields: username, password, email, org
 
-  Other fields: email
+      Other fields: email
 
-  Authorization: no
+      Authorization: no
 
-  Success: `201 Created`
+      Success: `201 Created`
 
-* `POST /users/login`
+* `/users/update/<str username>`
+    * `GET`
 
-  Required fields: username, password
+      Authorization: yes
 
-  Authorization: no
+      Success: `200 OK`
 
-  Success: `200 OK`
+      Return values: user object
 
-  Return values: token
+    * `PUT`
 
-* `POST /users/logout`
+      Required fields: username, password, email, org
 
-  Authorization: yes
+      Authorization: yes
 
-  Success: `200 OK`
+      Success: `200 OK`
 
-* `GET /users/pickup-locations`
+      Return values: (updated) user object
 
-  Authorization: yes
+    * `PATCH`
 
-  Success: `200 OK`
+      Authorization: yes
 
-  Return values: list of pickup location objects
+      Success: `200 OK`
 
-* `GET /users/organizations`
+      Return values: (updated) user object
 
-  Authorization: no
+    * `DELETE`
 
-  Success: `200 OK`
+      Authorization: yes
 
-  Return values: list of organization objects
+      Success: `204 No Content`
+
+* `/users/login`
+    * `POST`
+
+      Required fields: username, password
+
+      Authorization: no
+
+      Success: `200 OK`
+
+      Return values: token
+
+* `/users/logout`
+  * `POST`
+
+    Authorization: yes
+
+    Success: `200 OK`
+
+* `/users/pickup-locations`
+  * `GET`
+
+    Authorization: yes
+
+    Success: `200 OK`
+
+    Return values: list of pickup location objects
+
+* `/users/organizations`
+  * `GET`
+
+    Authorization: no
+
+    Success: `200 OK`
+
+    Return values: list of organization objects

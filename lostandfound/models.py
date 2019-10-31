@@ -5,7 +5,7 @@ connect('item')
 
 class Item(Document):
   user = StringField()
-  features = ListField(required=True)
+  features = DictField(required=True)
   date_time = DateTimeField(default=datetime.now())
   location = GeoPointField()
   description = StringField(max_length=150)

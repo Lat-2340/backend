@@ -89,3 +89,32 @@ in the HTTP header.
     Success: `200 OK`
 
     Return values: list of organization objects
+
+## lostandfound app
+
+* `/lostandfound/add-lost-item`
+    * `POST`
+
+      Required fields: features
+
+      Authorization: yes
+
+      Success: 201 CREATED
+
+* `/lostandfound/add-found-item`
+    * `POST`
+
+      Required fields: features
+
+      Authorization: yes
+
+      Success: 201 CREATED
+
+* `/lostandfound/get-items`
+    * `GET`
+
+      Authorization: yes
+
+      Success: 200 OK
+
+      Return values: an object containing a list of lost_items and a list of found_items submitted by the current logged-in user

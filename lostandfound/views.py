@@ -19,7 +19,7 @@ def addLostItemView(request):
     item.user = request.user.username
     item.save()
     print(item.id, item)
-  except ValidationError as e:
+  except (ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},
       status=status.HTTP_400_BAD_REQUEST
@@ -36,7 +36,7 @@ def addFoundItemView(request):
     item.user = request.user.username
     item.save()
     print(item.id, item)
-  except ValidationError as e:
+  except (ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},
       status=status.HTTP_400_BAD_REQUEST

@@ -4,9 +4,9 @@ from users.models import CustomUser, PickupLocation
 
 class Item(models.Model):
   user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-  feature_color = models.CharField(max_length=15)
-  feature_size = models.CharField(max_length=15)
-  feature_category = models.CharField(max_length=15)
+  feature_color = models.CharField(max_length=30)
+  feature_size = models.CharField(max_length=30)
+  feature_category = models.CharField(max_length=30)
   date = models.DateField(auto_now_add=True)
   location_lat = models.DecimalField(blank=False, max_digits=19, decimal_places=10)
   location_long = models.DecimalField(blank=False, max_digits=19, decimal_places=10)

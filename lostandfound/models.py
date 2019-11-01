@@ -17,7 +17,7 @@ class Item(models.Model):
     return rep.format(self.user, self.feature_color, self.feature_size, self.feature_category, self.description)
 
 class FoundItem(Item):
-  image = models.ImageField()
+  image = models.ImageField(null=True, blank=True)
   pickup_address = models.ForeignKey(PickupLocation, null=True, on_delete=models.SET_NULL)
 
   def __str__(self):

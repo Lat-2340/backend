@@ -12,3 +12,10 @@ class ItemSerializer(serializers.ModelSerializer):
     model = Item
     fields = '__all__'
 
+class FoundItemSerializer(serializers.ModelSerializer):
+  user = serializers.ReadOnlyField(source='user.username')
+
+  class Meta:
+    model = FoundItem
+    fields = '__all__'
+

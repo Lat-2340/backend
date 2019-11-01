@@ -111,7 +111,7 @@ in the HTTP header.
 
       Return values: list of lost items the request user posted
 
-* `/lostandfound/update/<int pk>`
+* `/lostandfound/update-lost-item/<int pk>`
 
     * `GET`
 
@@ -144,3 +144,11 @@ in the HTTP header.
       Authorization: yes
 
       Success: `204 No Content`
+
+* `/lostandfound/found-items`
+
+    Similar to `/lostandfound/lost-items`
+
+* `/lostandfound/update-found-item/<int pk>`
+
+    Similar to `/lostandfound/update-lost-item/<int pk>`

@@ -92,29 +92,55 @@ in the HTTP header.
 
 ## lostandfound app
 
-* `/lostandfound/add-lost-item`
+* `/lostandfound/lost-items`
     * `POST`
 
-      Required fields: features
+      Required fields: feature_color, feature_size, feature_category, date, location_lat, location_long
+
+      Optional fields: description
 
       Authorization: yes
 
       Success: 201 CREATED
 
-* `/lostandfound/add-found-item`
-    * `POST`
-
-      Required fields: features
-
-      Authorization: yes
-
-      Success: 201 CREATED
-
-* `/lostandfound/get-items`
     * `GET`
 
       Authorization: yes
 
       Success: 200 OK
 
-      Return values: an object containing a list of lost_items and a list of found_items submitted by the current logged-in user
+      Return values: list of lost items the request user posted
+
+* `/lostandfound/update/<int pk>`
+
+    * `GET`
+
+      Authorization: yes
+
+      Success: `200 OK`
+
+      Return values: lost item object
+
+    * `PUT`
+
+      Required fields: feature_color, feature_size, feature_category, date, location_lat, location_long
+
+      Authorization: yes
+
+      Success: `200 OK`
+
+      Return values: (updated) user object
+
+    * `PATCH`
+
+      Authorization: yes
+
+      Success: `200 OK`
+
+      Return values: (updated) user object
+
+    * `DELETE`
+
+      Authorization: yes
+
+      Success: `204 No Content`

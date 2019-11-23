@@ -1,27 +1,19 @@
 from datetime import datetime
 from mongoengine import *
 
-connect('item')
+connect('items')
 
 class Item(Document):
   user = StringField()
-  features = DictField(required=True)
+  is_lost = BooleanField(required=True)
   date_time = DateTimeField(default=datetime.now())
   location = GeoPointField()
+  features =DictField()
   description = StringField(max_length=150)
-
-  meta = {
-    'allow_inheritance': True
-  }
-
-  def __str__(self):
-    rep = 'user: {0}, features: {1}, location: {2}, date_time: {3}, description: {4}'
-    return rep.format(self.user, self.features, self.location, self.date_time, self.description)
-
-class FoundItem(Item):
+  pickup_address = StringField(max_length=70)
   image = ImageField()
-  pickup_address = StringField(max_length=70, required=True)
 
   def __str__(self):
-    rep = 'user: {0}, features: {1}, location: {2}, pickup: {3}, date_time: {4}, description: {5}'
-    return rep.format(self.user, self.features, self.location, self.pickup_address, self.date_time,  self.description)
+    rep = 'user: {0}, is_lost: {1}, date_time: {2}'
+    return rep.format(self.user, self.is_lost, self.location)
+

@@ -7,13 +7,10 @@ from rest_framework.decorators import api_view
 
 from mongoengine import *
 
-from .models import Item, FoundItem
-
-def indexView(request):
-  return HttpResponse('Welcome to lostandfound index.')
+from .models import Item
 
 @api_view(['POST'])
-def addLostItemView(request):
+def addItemView(request):
   try:
     item = Item(**request.data)
     item.user = request.user.username
@@ -25,35 +22,20 @@ def addLostItemView(request):
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
-    {"detail": _("Added lost item %s." % item.id)},
+    {"detail": _("Added item %s." % item.id)},
     status=status.HTTP_201_CREATED
   )
 
-@api_view(['POST'])
-def addFoundItemView(request):
-  try:
-    item = FoundItem(**request.data)
-    item.user = request.user.username
-    item.save()
-    print(item.id, item)
-  except (ValidationError, FieldDoesNotExist) as e:
-    return Response(
-      {"error": _(str(e))},
-      status=status.HTTP_400_BAD_REQUEST
-    )
-  return Response(
-    {"detail": _("Added found item %s." % item.id)},
-    status=status.HTTP_201_CREATED
-  )
+# TODO: CRUD APIs
 
 @api_view(['GET'])
 def getItems(request):
+  # TODO: separate getter for lost and found items
   username = request.user.username
-  lost_items = [item.to_json() for item in Item.objects(user=username)]
-  found_items = [item.to_json() for item in FoundItem.objects(user=username)]
+  items = [item.to_json() for item in Item.objects(user=username)]
+  print(items)
   return Response(
     data={
-      'lost_items': lost_items,
-      'found_items': found_items,
+      'items': items,
     },
   )

@@ -14,6 +14,6 @@ class Item(Document):
   image = ImageField()
 
   def __str__(self):
-    rep = 'user: {0}, is_lost: {1}, date_time: {2}'
-    return rep.format(self.user, self.is_lost, self.location)
+    rep = 'user: {0}, is_lost: {1}, date_time: {2}, features: {3}, description: {4}'
+    return rep.format(self.user, self.is_lost, self.location, self.features, self.description)
 

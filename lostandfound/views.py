@@ -29,7 +29,7 @@ def addItemView(request):
 @api_view(['POST'])
 def updateItemView(request):
   try:
-    item = Item.objects(id=request.data["id"])
+    item = Item.objects(id=request.data["id"], user=request.user.username)
     if len(item) > 1:
       return Response(
         {"error": _("More than one item matched.")},
@@ -59,14 +59,22 @@ def updateItemView(request):
 @api_view(['DELETE'])
 def deleteItemView(request):
   try:
-    Item.objects(id=request.data["id"]).delete()
-  except (KeyError, ValidationError, FieldDoesNotExist) as e:
+    item = Item.objects(id=request.data["id"], user=request.user.username)
+    if len(item) > 1:
+      return Response(
+        {"error": _("More than one item matched.")},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+      )
+    item = item[0]
+    print(item)
+    item.delete()
+  except (KeyError, IndexError, ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
-    {"detail": _("Deleted item %s." % request.data["id"])},
+    {"detail": _("Deleted item %s." % item.id)},
     status=status.HTTP_204_NO_CONTENT
   )
 

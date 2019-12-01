@@ -13,13 +13,19 @@ from mongoengine import *
 
 from .models import Item
 
+def encode_base64(filepath):
+  with open(filepath, 'rb') as f:
+    image = File(f)
+    data = base64.b64encode(image.read())
+    return data
+
+def decode_base64(filename, strData):
+  with open(filename, 'wb+') as f:
+    data = base64.b64decode(strData)
+    f.write(data)
+
 def get_image_filename(itemId):
   return os.getcwd() + "/media/" + str(itemId) + ".jpg"
-
-def handle_uploaded_file(filename, f):
-  with open(filename, 'wb+') as destination:
-    for chunk in f.chunks():
-      destination.write(chunk)
 
 @api_view(['POST'])
 def addItemView(request):
@@ -32,7 +38,7 @@ def addItemView(request):
     item.user = request.user.username
     item.save()
 
-    handle_uploaded_file(get_image_filename(str(item.id)), img)
+    decode_base64(get_image_filename(str(item.id)), img)
     item.save()
     print("Added item: ", item.id, item)
   except (ValidationError, FieldDoesNotExist) as e:
@@ -105,18 +111,12 @@ def deleteItemView(request):
     status=status.HTTP_204_NO_CONTENT
   )
 
-def get_base64_image(filepath):
-  with open(filepath, 'rb') as f:
-    image = File(f)
-    data = base64.b64encode(image.read())
-    return data
-
 @api_view(['GET'])
 def getLostItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=True)
   objects = [item.to_json() for item in items]
-  images = [get_base64_image(get_image_filename(str(item.id))) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id))) for item in items]
   return Response(
     data={
       'lost_items': objects,
@@ -129,7 +129,7 @@ def getFoundItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=False)
   objects = [item.to_json() for item in items]
-  images = [get_base64_image(get_image_filename(str(item.id))) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id))) for item in items]
   return Response(
     data={
       'found_items': objects,

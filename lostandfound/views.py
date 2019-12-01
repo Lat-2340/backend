@@ -1,4 +1,5 @@
 import os
+import json
 
 from django.core.files import File
 import base64
@@ -23,14 +24,15 @@ def handle_uploaded_file(filename, f):
 @api_view(['POST'])
 def addItemView(request):
   try:
-    img = request.data['image']
-    del request.data['image']
+    data = request.data.dict() # mutable copy of request.data
+    img = data['image']
+    del data['image']
 
-    item = Item(**request.data)
+    item = Item(**data)
+    item.user = request.user.username
     item.save()
 
     handle_uploaded_file(get_image_filename(str(item.id)), img)
-    item.user = request.user.username
     item.save()
     print("Added item: ", item.id, item)
   except (ValidationError, FieldDoesNotExist) as e:
@@ -54,12 +56,13 @@ def updateItemView(request):
       )
     item = item[0]
 
-    if 'image' in request.data:
-      img = request.data['image']
-      del request.data['image']
+    data = request.data.dict() # mutable copy of request.data
+    if 'image' in data:
+      img = data['image']
+      del data['image']
       handle_uploaded_file(get_image_filename(str(item.id)), img)
 
-    for k, v in request.data.items():
+    for k, v in data.items():
       item[k] = v
 
     print("Updated item: ", item.id, item)
@@ -101,7 +104,6 @@ def deleteItemView(request):
     {"detail": _("Deleted item %s." % item.id)},
     status=status.HTTP_204_NO_CONTENT
   )
-
 
 def get_base64_image(filepath):
   with open(filepath, 'rb') as f:

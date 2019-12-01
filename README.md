@@ -95,7 +95,7 @@ in the HTTP header.
 * `/lostandfound/add-item`
     * `POST`
 
-      Required fields: is_lost
+      Required fields: is_lost, image
 
       Authorization: yes
 
@@ -126,7 +126,7 @@ in the HTTP header.
 
     Success: `200 OK`
 
-    Return values: list of lost items associated with the request user
+    Return values: a list of lost items and a list of lost item images associated with the request user
 
 * `/lostandfound/get-found-items`
   * `GET`
@@ -135,4 +135,4 @@ in the HTTP header.
 
     Success: `200 OK`
 
-    Return values: list of found items associated with the request user
+    Return values: a list of found items and a list of found item images associated with the request user

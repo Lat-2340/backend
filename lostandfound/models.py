@@ -8,7 +8,7 @@ class Item(Document):
   is_lost = BooleanField(required=True)
   date_time = DateTimeField(default=datetime.now())
   location = GeoPointField()
-  features =DictField()
+  features =StringField(max_length=150)
   description = StringField(max_length=150)
   pickup_address = StringField(max_length=70)
 

@@ -11,7 +11,6 @@ class Item(Document):
   features =DictField()
   description = StringField(max_length=150)
   pickup_address = StringField(max_length=70)
-  image = ImageField()
 
   def __str__(self):
     rep = 'user: {0}, is_lost: {1}, date_time: {2}, features: {3}, description: {4}'

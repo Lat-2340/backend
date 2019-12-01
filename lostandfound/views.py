@@ -11,6 +11,9 @@ from mongoengine import *
 
 from .models import Item
 
+def get_image_filename(itemId):
+  return os.getcwd() + "/media/" + str(itemId) + ".jpg"
+
 def handle_uploaded_file(filename, f):
   with open(filename, 'wb+') as destination:
     for chunk in f.chunks():
@@ -23,14 +26,10 @@ def addItemView(request):
     item.user = request.user.username
     item.save()
 
-    imageFilename = os.getcwd() + "/media/" + str(item.id) + ".jpg"
-    handle_uploaded_file(imageFilename, request.FILES['image'])
-
-    with open(imageFilename, 'rb') as f:
-      item.image.put(f, content_type = 'image/jpeg')
+    handle_uploaded_file(get_image_filename(str(item.id)), request.FILES['image'])
 
     item.save()
-    print(item.id, item)
+    print("Added item: ", item.id, item)
   except (ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},
@@ -51,17 +50,12 @@ def updateItemView(request):
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
+
     for k, v in request.POST.items():
-      try:
-        item[k] = v
-      except:
-        return Response(
-          {"error": _("Illegal argument: {0}".format(k))},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    print(item)
+      item[k] = v
+    print("Updated item: ", item.id, item)
     item.save()
-  except (KeyError, ValidationError, FieldDoesNotExist) as e:
+  except (KeyError, IndexError, ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},
       status=status.HTTP_400_BAD_REQUEST
@@ -74,14 +68,15 @@ def updateItemView(request):
 @api_view(['DELETE'])
 def deleteItemView(request):
   try:
-    item = Item.objects(id=request.data["id"], user=request.user.username)
+    item = Item.objects(id=request.POST["id"], user=request.user.username)
     if len(item) > 1:
       return Response(
         {"error": _("More than one item matched.")},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
-    print(item)
+
+    os.remove(get_image_filename(str(item.id)))
     item.delete()
   except (KeyError, IndexError, ValidationError, FieldDoesNotExist) as e:
     return Response(

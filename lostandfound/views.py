@@ -1,3 +1,5 @@
+import os
+
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 
@@ -9,11 +11,24 @@ from mongoengine import *
 
 from .models import Item
 
+def handle_uploaded_file(filename, f):
+  with open(filename, 'wb+') as destination:
+    for chunk in f.chunks():
+      destination.write(chunk)
+
 @api_view(['POST'])
 def addItemView(request):
   try:
-    item = Item(**request.data)
+    item = Item(**request.POST)
     item.user = request.user.username
+    item.save()
+
+    imageFilename = os.getcwd() + "/media/" + str(item.id) + ".jpg"
+    handle_uploaded_file(imageFilename, request.FILES['image'])
+
+    with open(imageFilename, 'rb') as f:
+      item.image.put(f, content_type = 'image/jpeg')
+
     item.save()
     print(item.id, item)
   except (ValidationError, FieldDoesNotExist) as e:
@@ -29,20 +44,20 @@ def addItemView(request):
 @api_view(['POST'])
 def updateItemView(request):
   try:
-    item = Item.objects(id=request.data["id"], user=request.user.username)
+    item = Item.objects(id=request.POST["id"], user=request.user.username)
     if len(item) > 1:
       return Response(
         {"error": _("More than one item matched.")},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
-    for k, v in request.data["updates"].items():
+    for k, v in request.POST.items():
       try:
         item[k] = v
       except:
         return Response(
-        {"error": _("Illegal argument: {0}".format(k))},
-          status=status.HTTP_400_BAD_REQUEST
+          {"error": _("Illegal argument: {0}".format(k))},
+            status=status.HTTP_400_BAD_REQUEST
         )
     print(item)
     item.save()

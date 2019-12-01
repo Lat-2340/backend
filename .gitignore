@@ -3,6 +3,7 @@
 # Custom
 .DS_Store
 usersdb
+media/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

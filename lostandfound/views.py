@@ -1,9 +1,3 @@
-import os
-import json
-
-from django.core.files import File
-import base64
-
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,20 +6,7 @@ from rest_framework.decorators import api_view
 from mongoengine import *
 
 from .models import Item
-
-def encode_base64(filepath):
-  with open(filepath, 'rb') as f:
-    image = File(f)
-    data = base64.b64encode(image.read())
-    return data
-
-def decode_base64(filename, strData):
-  with open(filename, 'wb+') as f:
-    data = base64.b64decode(strData)
-    f.write(data)
-
-def get_image_filename(itemId):
-  return os.getcwd() + "/media/" + str(itemId) + ".jpg"
+from .utils import encode_base64, decode_base64, get_image_filename
 
 @api_view(['POST'])
 def addItemView(request):

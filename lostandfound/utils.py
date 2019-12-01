@@ -13,5 +13,8 @@ def decode_base64(filename, strData):
     data = base64.b64decode(strData)
     f.write(data)
 
-def get_image_filename(itemId):
-  return os.getcwd() + "/media/" + str(itemId) + ".jpg"
+def get_image_filename(item_id, is_lost):
+  if is_lost:
+    return os.getcwd() + "/media/lost/" + str(item_id) + ".jpg"
+  else:
+    return os.getcwd() + "/media/found/" + str(item_id) + ".jpg"

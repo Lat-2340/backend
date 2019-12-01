@@ -12,6 +12,13 @@ from .utils import encode_base64, decode_base64, get_image_filename
 def addItemView(request):
   try:
     data = request.data.dict() # mutable copy of request.data
+
+    if 'image' not in data:
+      return Response(
+        {"error": _("An image of the item is required")},
+        status=status.HTTP_400_BAD_REQUEST
+      )
+
     img = data['image']
     del data['image']
 
@@ -19,7 +26,7 @@ def addItemView(request):
     item.user = request.user.username
     item.save()
 
-    decode_base64(get_image_filename(str(item.id)), img)
+    decode_base64(get_image_filename(str(item.id), item.is_lost), img)
     item.save()
     print("Added item: ", item.id, item)
   except (ValidationError, FieldDoesNotExist) as e:
@@ -47,7 +54,7 @@ def updateItemView(request):
     if 'image' in data:
       img = data['image']
       del data['image']
-      handle_uploaded_file(get_image_filename(str(item.id)), img)
+      handle_uploaded_file(get_image_filename(str(item.id), item.is_lost), img)
 
     for k, v in data.items():
       item[k] = v
@@ -77,7 +84,7 @@ def deleteItemView(request):
     item = item[0]
 
     try:
-      os.remove(get_image_filename(str(item.id)))
+      os.remove(get_image_filename(str(item.id), item.is_lost))
     except FileNotFoundError as e:
       print(e)
 
@@ -97,7 +104,7 @@ def getLostItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=True)
   objects = [item.to_json() for item in items]
-  images = [encode_base64(get_image_filename(str(item.id))) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id)), item.is_lost) for item in items]
   return Response(
     data={
       'lost_items': objects,
@@ -110,7 +117,7 @@ def getFoundItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=False)
   objects = [item.to_json() for item in items]
-  images = [encode_base64(get_image_filename(str(item.id))) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id)), item.is_lost) for item in items]
   return Response(
     data={
       'found_items': objects,

@@ -133,3 +133,4 @@ dmypy.json
 
 #pretrained ML model
 *.h5
+.idea/

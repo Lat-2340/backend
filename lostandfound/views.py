@@ -7,7 +7,7 @@ from mongoengine import *
 
 from .models import Item
 from .utils import encode_base64, decode_base64, get_image_filename
-
+from .similarimages import get_similar_image
 @api_view(['POST'])
 def addItemView(request):
   try:
@@ -29,6 +29,26 @@ def addItemView(request):
     decode_base64(get_image_filename(str(item.id), item.is_lost), img)
     item.save()
     print("Added item: ", item.id, item)
+
+    # find the current best matching found images
+    if item.is_lost and os.listdir(os.getcwd()+"/media/found/"):
+      similar_imgs = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
+      similar_imgs.sort(key=lambda x:x[0])
+      item.matched_imgs = similar_imgs
+      item.save()
+
+    # refresh lost matching when found image comes
+    if not item.is_lost and os.listdir(os.getcwd()+"/media/lost/"):
+      to_update_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
+      for score, img_id in to_update_imgs:
+        item = Item.objects(id=img_id, is_lost=True)
+        for fscore, fimg_id in item.matched_imgs:
+          if score > fscore:
+            item.matched_imgs.remove([fscore, fimg_id])
+            item.matched_imgs.append([score, img_id])
+            item.matched_imgs.sorted(key=lambda x:x[0])
+            break
+
   except (ValidationError, FieldDoesNotExist) as e:
     return Response(
       {"error": _(str(e))},

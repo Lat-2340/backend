@@ -54,7 +54,7 @@ def updateItemView(request):
     if 'image' in data:
       img = data['image']
       del data['image']
-      handle_uploaded_file(get_image_filename(str(item.id), item.is_lost), img)
+      decode_base64(get_image_filename(str(item.id), item.is_lost), img)
 
     for k, v in data.items():
       item[k] = v
@@ -104,7 +104,7 @@ def getLostItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=True)
   objects = [item.to_json() for item in items]
-  images = [encode_base64(get_image_filename(str(item.id)), item.is_lost) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id), item.is_lost)) for item in items]
   return Response(
     data={
       'lost_items': objects,
@@ -117,7 +117,7 @@ def getFoundItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=False)
   objects = [item.to_json() for item in items]
-  images = [encode_base64(get_image_filename(str(item.id)), item.is_lost) for item in items]
+  images = [encode_base64(get_image_filename(str(item.id), item.is_lost)) for item in items]
   return Response(
     data={
       'found_items': objects,

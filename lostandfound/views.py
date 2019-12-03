@@ -37,15 +37,24 @@ def addItemView(request):
     else: # refresh lost matching when adding found image
       similar_lost_img_ids = get_similar_image(str(item.id), "lost/", K=float("inf"))
 
-      for score, img_id in similar_lost_img_ids:
-        lost_item = Item.objects(id=img_id, is_lost=True)[0]
+      for score, matched_id in similar_lost_img_ids:
+        try:
+          lost_item = Item.objects(id=matched_id, is_lost=True)[0]
+        except:
+          print("invalid match id: ", matched_id)
+          continue
+
         if lost_item.matched_info:
           fscore, _ = lost_item.matched_info[0]
           if score > fscore:
-            lost_item.matched_info[0] = [score, item.id]
+            lost_item.matched_info[0] = [score, str(item.id)]
             lost_item.matched_info.sort(key=lambda x:x[0])
+            print("updated lost match: ", matched_id, lost_item.matched_info)
         elif score > 0.6:
-          lost_item.matched_info.append([score, item.id])
+          lost_item.matched_info.append([score, str(item.id)])
+          print("updated lost match: ", matched_id, lost_item.matched_info)
+
+        lost_item.save()
 
     item.save()
     print("Added item: ", item.id, item)
@@ -165,6 +174,7 @@ def getMatchedFoundItems(request):
         print("invalid match id: ", matched_id)
         continue
 
+    print("matched items: ", matched_items)
     return Response(
       data={
         'matched_items': matched_items,

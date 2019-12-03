@@ -21,3 +21,9 @@ def get_image_filename(item_id, is_lost):
 
 def get_id_from_image_filename(filename):
   return filename.split(".")[0] # take the id from 'id.jpg'
+
+def remove_image_file(item_id, is_lost):
+  try:
+    os.remove(get_image_filename(str(item_id), is_lost))
+  except FileNotFoundError as e:
+    print(e)

@@ -3,6 +3,8 @@
 import os
 import sys
 
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')

@@ -83,7 +83,7 @@ def get_similar_image(itemid, match_folder, K):
 
     similar_imgs = compute_K_nearst_neighbour(preds, match_files, K)
     for i in range(len(similar_imgs)):
-        similar_imgs[i][0] = round(float(similar_imgs[i][0]), 2)
+        similar_imgs[i][0] = round(float(similar_imgs[i][0]), 4)
         similar_imgs[i][1] = match_files[similar_imgs[i][1]]
 
     return similar_imgs

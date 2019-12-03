@@ -14,6 +14,6 @@ class Item(Document):
   matched_imgs = ListField()
 
   def __str__(self):
-    rep = 'user: {0}, is_lost: {1}, date_time: {2}, features: {3}, description: {4}'
-    return rep.format(self.user, self.is_lost, self.location, self.features, self.description)
+    rep = 'user: {0}, is_lost: {1}, matched_imgs: {2}'
+    return rep.format(self.user, self.is_lost, self.matched_imgs)
 

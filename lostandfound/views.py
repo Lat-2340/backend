@@ -30,7 +30,6 @@ def addItemView(request):
 
     decode_base64(get_image_filename(str(item.id), item.is_lost), img)
     item.save()
-    print("Added item: ", item.id, item)
 
     # find the current best matching found images
     if item.is_lost:
@@ -46,6 +45,8 @@ def addItemView(request):
         if score > fscore:
           item.matched_imgs[0] = [score, img_id]
           item.matched_imgs.sorted(key=lambda x:x[0])
+
+    print("Added item: ", item.id, item)
 
   except (ValidationError, FieldDoesNotExist) as e:
     return Response(

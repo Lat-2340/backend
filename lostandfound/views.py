@@ -31,23 +31,21 @@ def addItemView(request):
     print("Added item: ", item.id, item)
 
     # find the current best matching found images
-    if item.is_lost and os.listdir(os.getcwd()+"/media/found/"):
+    if item.is_lost:
       similar_imgs = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
       similar_imgs.sort(key=lambda x:x[0])
       item.matched_imgs = similar_imgs
       item.save()
 
     # refresh lost matching when found image comes
-    if not item.is_lost and os.listdir(os.getcwd()+"/media/lost/"):
+    if not item.is_lost:
       to_update_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
       for score, img_id in to_update_imgs:
         item = Item.objects(id=img_id, is_lost=True)
-        for fscore, fimg_id in item.matched_imgs:
-          if score > fscore:
-            item.matched_imgs.remove([fscore, fimg_id])
-            item.matched_imgs.append([score, img_id])
-            item.matched_imgs.sorted(key=lambda x:x[0])
-            break
+        fscore, fimg_id = item.matched_imgs[0]
+        if score > fscore:
+          item.matched_imgs[0] = [score, img_id]
+          item.matched_imgs.sorted(key=lambda x:x[0])
 
   except (ValidationError, FieldDoesNotExist) as e:
     return Response(

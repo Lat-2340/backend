@@ -22,10 +22,3 @@ requests-oauthlib==1.2.0
 six==1.12.0
 sqlparse==0.3.0
 urllib3==1.25.6
-
---upgrade tensorflow
-keras
-pillow
-scipy
-scikit-learn
-

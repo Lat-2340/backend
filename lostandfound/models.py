@@ -11,7 +11,7 @@ class Item(Document):
   features =StringField(max_length=150)
   description = StringField(max_length=150)
   pickup_address = StringField(max_length=70)
-  matched_imgs = DictField()
+  matched_imgs = ListField()
 
   def __str__(self):
     rep = 'user: {0}, is_lost: {1}, date_time: {2}, features: {3}, description: {4}'

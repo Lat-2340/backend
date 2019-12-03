@@ -40,18 +40,20 @@ def addItemView(request):
       similar_lost_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
 
       for score, img_file in similar_lost_imgs:
-        lost_item = Item.objects(id=get_id_from_image_filename(img_file), is_lost=True)
-        fscore, _ = lost_item.matched_info[0]
-        if score > fscore:
-          lost_item.matched_info[0] = [score, item.id]
-          lost_item.matched_info.sorted(key=lambda x:x[0])
-
+        lost_item = Item.objects(id=get_id_from_image_filename(img_file), is_lost=True)[0]
+        if lost_item.matched_info:
+          fscore, _ = lost_item.matched_info[0]
+          if score > fscore:
+            lost_item.matched_info[0] = [score, item.id]
+            lost_item.matched_info.sort(key=lambda x:x[0])
+        else:
+          lost_item.matched_info.append([score, item.id])
     item.save()
     print("Added item: ", item.id, item)
 
   except (ValidationError, FieldDoesNotExist) as e:
     return Response(
-      {"error": _(str(e))},
+      {"error": str(e)},
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
@@ -88,7 +90,7 @@ def updateItemView(request):
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
-    {"detail": _("Updated item %s." % item.id)},
+    {"detail": "Updated item %s." % item.id},
     status=status.HTTP_200_OK
   )
 

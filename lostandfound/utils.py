@@ -18,3 +18,6 @@ def get_image_filename(item_id, is_lost):
     return os.getcwd() + "/media/lost/" + str(item_id) + ".jpg"
   else:
     return os.getcwd() + "/media/found/" + str(item_id) + ".jpg"
+
+def get_id_from_image_filename(filename):
+  return filename.split(".")[0] # take the id from 'id.jpg'

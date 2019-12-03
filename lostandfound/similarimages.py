@@ -1,13 +1,13 @@
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications.vgg16 import VGG16, preprocess_input
-from keras import Model
+from keras import Model, models
 from keras import backend as tf
 from .utils import get_image_filename, get_id_from_image_filename
 import heapq
 import os
 import numpy as np
 
-
+graph_path = ""
 def load_image_from_file(filepath):
     img = load_img(filepath, target_size=(224, 224))
     img = img_to_array(img)
@@ -41,10 +41,20 @@ def collect_data(file_path, match_folder):
 
 
 def create_model_one():
-
+    """
     vgg = VGG16(include_top=True, weights='imagenet')
     model2 = Model(vgg.input, vgg.layers[-2].output)
-    model2.save('vgg_4096.h5')
+    model2.save('v.h5')
+    return model2
+    """
+    global graph_path
+    if graph_path == "":
+        vgg = VGG16(include_top=True, weights='imagenet')
+        model2 = Model(vgg.input, vgg.layers[-2].output)
+        graph_path = 'vgg_4096.h5'
+        model2.save(graph_path)
+    else:
+        model2 = models.load_model(graph_path)
     return model2
 
 

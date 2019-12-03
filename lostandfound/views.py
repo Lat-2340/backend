@@ -29,23 +29,21 @@ def addItemView(request):
 
     decode_base64(get_image_filename(str(item.id), item.is_lost), img)
 
-    # find the current best matching found images
-    if item.is_lost:
+    if item.is_lost: # find the current best matching found images
       similar_found_imgs = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
       for img_info in similar_found_imgs:
         img_info[1] = get_id_from_image_filename(img_info[1])
       similar_found_imgs.sort(key=lambda x:x[0])
       item.matched_info = similar_found_imgs
 
-    else: # refresh lost matching when found image comes
+    else: # refresh lost matching when adding found image
       similar_lost_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
 
       for score, img_file in similar_lost_imgs:
-        img_id = get_id_from_image_filename(img_file)
-        lost_item = Item.objects(id=img_id, is_lost=True)
+        lost_item = Item.objects(id=get_id_from_image_filename(img_file), is_lost=True)
         fscore, _ = lost_item.matched_info[0]
         if score > fscore:
-          lost_item.matched_info[0] = [score, img_id]
+          lost_item.matched_info[0] = [score, item.id]
           lost_item.matched_info.sorted(key=lambda x:x[0])
 
     item.save()

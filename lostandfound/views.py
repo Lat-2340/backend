@@ -1,4 +1,3 @@
-from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,7 +16,7 @@ def addItemView(request):
 
     if 'image' not in data:
       return Response(
-        {"error": _("An image of the item is required")},
+        {"error": "An image of the item is required"},
         status=status.HTTP_400_BAD_REQUEST
       )
 
@@ -58,7 +57,7 @@ def addItemView(request):
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
-    {"detail": _("Added item %s." % item.id)},
+    {"detail": "Added item %s." % item.id},
     status=status.HTTP_201_CREATED
   )
 
@@ -68,7 +67,7 @@ def updateItemView(request):
     item = Item.objects(id=request.data['id'], user=request.user.username)
     if len(item) > 1:
       return Response(
-        {"error": _("More than one item matched.")},
+        {"error": "More than one item found with id %s" % request.data['id']},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
@@ -101,7 +100,7 @@ def deleteItemView(request):
     item = Item.objects(id=request.data['id'], user=request.user.username)
     if len(item) > 1:
       return Response(
-        {"error": _("More than one item matched.")},
+        {"error": "More than one item found with id %s" % request.data['id']},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]

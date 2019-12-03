@@ -2,7 +2,7 @@ from keras.preprocessing.image import load_img, img_to_array
 from keras.applications.vgg16 import VGG16, preprocess_input
 from keras import Model
 from keras import backend as tf
-from utils import get_image_filename, get_id_from_image_filename
+from .utils import get_image_filename, get_id_from_image_filename
 import heapq
 import os
 import numpy as np

@@ -32,26 +32,22 @@ def addItemView(request):
 
     # find the current best matching found images
     if item.is_lost:
-      similar_imgs = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
-
-      for img_info in similar_imgs:
+      similar_found_imgs = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
+      for img_info in similar_found_imgs:
         img_info[1] = get_id_from_image_filename(img_info[1])
-
-      similar_imgs.sort(key=lambda x:x[0])
-      item.matched_images = similar_imgs
+      similar_found_imgs.sort(key=lambda x:x[0])
+      item.matched_info = similar_found_imgs
 
     else: # refresh lost matching when found image comes
-      to_update_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
+      similar_lost_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
 
-      for img_info in to_update_imgs:
-        img_info[1] = get_id_from_image_filename(img_info[1])
-
-        score, img_id = img_info
-        item = Item.objects(id=img_id, is_lost=True)
-        fscore, fimg_id = item.matched_images[0]
+      for score, img_file in similar_lost_imgs:
+        img_id = get_id_from_image_filename(img_file)
+        lost_item = Item.objects(id=img_id, is_lost=True)
+        fscore, _ = lost_item.matched_info[0]
         if score > fscore:
-          item.matched_images[0] = [score, img_id]
-          item.matched_images.sorted(key=lambda x:x[0])
+          lost_item.matched_info[0] = [score, img_id]
+          lost_item.matched_info.sorted(key=lambda x:x[0])
 
     item.save()
     print("Added item: ", item.id, item)
@@ -118,16 +114,16 @@ def deleteItemView(request):
     item.delete()
   except (KeyError, IndexError, ValidationError, FieldDoesNotExist) as e:
     return Response(
-      {"error": _(str(e))},
+      {"error": str(e)},
       status=status.HTTP_400_BAD_REQUEST
     )
   return Response(
-    {"detail": _("Deleted item %s." % item.id)},
+    {"detail": "Deleted item %s." % item.id},
     status=status.HTTP_204_NO_CONTENT
   )
 
 @api_view(['GET'])
-def getLostItems(request):
+def getUserLostItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=True)
   objects = [item.to_json() for item in items]
@@ -140,7 +136,7 @@ def getLostItems(request):
   )
 
 @api_view(['GET'])
-def getFoundItems(request):
+def getUserFoundItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=False)
   objects = [item.to_json() for item in items]
@@ -151,3 +147,28 @@ def getFoundItems(request):
       'found_images': images,
     },
   )
+
+@api_view(['GET'])
+def getMatchedFoundItems(request):
+  try:
+    username = request.user.username
+    lost_id = request.data['id']
+    lost_item = Item.objects(user=username, id=lost_id)
+
+    matched_items, matched_images = [], []
+    for matched_id in lost_item.matched_ids:
+      matched_items.append(Item.objects(id=matched_id)[0])
+      matched_images = encode_base64(get_image_filename(matched_id, is_lost=False))
+
+    return Response(
+      data={
+        'matched_items': matched_items,
+        'matched_images': matched_images,
+      },
+    )
+
+  except (KeyError, IndexError) as e:
+    return Response(
+      {"error": str(e)},
+      status=status.HTTP_400_BAD_REQUEST
+    )

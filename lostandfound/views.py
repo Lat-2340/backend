@@ -38,7 +38,7 @@ def addItemView(request):
         img_info[1] = get_id_from_image_filename(img_info[1])
 
       similar_imgs.sort(key=lambda x:x[0])
-      item.matched_imgs = similar_imgs
+      item.matched_images = similar_imgs
 
     else: # refresh lost matching when found image comes
       to_update_imgs = get_similar_image(str(item.id), "lost/", K=float("inf"))
@@ -48,10 +48,10 @@ def addItemView(request):
 
         score, img_id = img_info
         item = Item.objects(id=img_id, is_lost=True)
-        fscore, fimg_id = item.matched_imgs[0]
+        fscore, fimg_id = item.matched_images[0]
         if score > fscore:
-          item.matched_imgs[0] = [score, img_id]
-          item.matched_imgs.sorted(key=lambda x:x[0])
+          item.matched_images[0] = [score, img_id]
+          item.matched_images.sorted(key=lambda x:x[0])
 
     item.save()
     print("Added item: ", item.id, item)

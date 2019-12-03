@@ -1,7 +1,8 @@
 from keras.preprocessing.image import load_img, img_to_array
 from keras.applications.vgg16 import VGG16, preprocess_input
 from keras import Model
-from .utils import get_image_filename
+from keras import backend as tf
+from utils import get_image_filename, get_id_from_image_filename
 import heapq
 import os
 import numpy as np
@@ -40,6 +41,7 @@ def collect_data(file_path, match_folder):
 
 
 def create_model_one():
+
     vgg = VGG16(include_top=True, weights='imagenet')
     model2 = Model(vgg.input, vgg.layers[-2].output)
     model2.save('vgg_4096.h5')
@@ -84,11 +86,14 @@ def get_similar_image(itemid, match_folder, K):
     similar_imgs = compute_K_nearst_neighbour(preds, match_files, K)
     for i in range(len(similar_imgs)):
         similar_imgs[i][0] = round(float(similar_imgs[i][0]), 4)
-        similar_imgs[i][1] = match_files[similar_imgs[i][1]]
-
+        similar_imgs[i][1] = get_id_from_image_filename(match_files[similar_imgs[i][1]])
+    tf.clear_session()
     return similar_imgs
 
+
+"""
 
 if __name__ == "__main__":
     res = get_similar_image("id2", "found/", 3)
     print(res)
+"""

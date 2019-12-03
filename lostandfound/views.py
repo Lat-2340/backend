@@ -46,7 +46,7 @@ def addItemView(request):
           if score > fscore:
             lost_item.matched_info[0] = [score, item.id]
             lost_item.matched_info.sort(key=lambda x:x[0])
-        else:
+        elif score > 0.6:
           lost_item.matched_info.append([score, item.id])
     item.save()
     print("Added item: ", item.id, item)

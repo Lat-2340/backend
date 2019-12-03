@@ -65,7 +65,7 @@ def updateItemView(request):
     item = Item.objects(id=request.data['id'], user=request.user.username)
     if len(item) > 1:
       return Response(
-        {"error": "More than one item found with id %s" % request.data['id']},
+        {"error": "More than one item with id %s" % request.data['id']},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
@@ -98,7 +98,7 @@ def deleteItemView(request):
     item = Item.objects(id=request.data['id'], user=request.user.username)
     if len(item) > 1:
       return Response(
-        {"error": "More than one item found with id %s" % request.data['id']},
+        {"error": "More than one item with id %s" % request.data['id']},
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
@@ -149,13 +149,24 @@ def getUserFoundItems(request):
 def getMatchedFoundItems(request):
   try:
     username = request.user.username
-    lost_id = request.data['id']
+    lost_id = request.GET['id']
     lost_item = Item.objects(user=username, id=lost_id)
 
+    if len(lost_item) > 1:
+      return Response(
+        {"error": "More than one item with id %s" % lost_id},
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+      )
+    lost_item = lost_item[0]
+
     matched_items, matched_images = [], []
-    for matched_id in lost_item.matched_ids:
-      matched_items.append(Item.objects(id=matched_id)[0])
-      matched_images = encode_base64(get_image_filename(matched_id, is_lost=False))
+    for _, matched_id in lost_item.matched_info:
+      try:
+        matched_items.append(Item.objects(id=matched_id)[0])
+        matched_images = encode_base64(get_image_filename(matched_id, is_lost=False))
+      except:
+        print("invalid match id: ", matched_id)
+        continue
 
     return Response(
       data={
@@ -164,7 +175,8 @@ def getMatchedFoundItems(request):
       },
     )
 
-  except (KeyError, IndexError) as e:
+  except (KeyError, ValidationError) as e:
+    print(e)
     return Response(
       {"error": str(e)},
       status=status.HTTP_400_BAD_REQUEST

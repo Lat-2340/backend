@@ -9,6 +9,7 @@ from .similarimages import get_similar_image
 from . import utils
 
 K = 3
+MATCH_THRESHOLD = 0.6
 
 @api_view(['POST'])
 def addItemView(request):
@@ -30,33 +31,68 @@ def addItemView(request):
 
     utils.decode_base64(utils.get_image_filename(str(item.id), item.is_lost), img)
 
+    '''
+    NOTE:
+      matched_info = [[score, item_id], ...] for lost items
+      matched_info = [item_id, ...] for found items
+    '''
     if item.is_lost: # find the current best matching found images
-      similar_found_img_ids = get_similar_image(str(item.id), "found/", K) # [[score, filename], []]
-      similar_found_img_ids.sort(key=lambda x:x[0])
-      item.matched_info = similar_found_img_ids
+      similar_img_ids = get_similar_image(str(item.id), "found/", K)
+      similar_img_ids.sort(key=lambda x: -x[0]) # descending order
+      matched_ids = []
+
+      for score, matched_id in similar_img_ids:
+        if score < MATCH_THRESHOLD:
+          continue
+        try:
+          # update match_info of the matched found item
+          found_item = Item.objects(id=matched_id, is_lost=False)[0]
+          found_item.matched_info.append(matched_id)
+          found_item.save()
+          print("append found match: ", matched_id, found_item.matched_info)
+
+          matched_ids.append([score, matched_id])
+        except:
+          continue
 
     else: # refresh lost matching when adding found image
-      similar_lost_img_ids = get_similar_image(str(item.id), "lost/", float("inf"))
+      similar_img_ids = get_similar_image(str(item.id), "lost/", float("inf"))
+      matched_ids = []
 
-      for score, matched_id in similar_lost_img_ids:
+      for score, matched_id in similar_img_ids:
         try:
           lost_item = Item.objects(id=matched_id, is_lost=True)[0]
         except:
           print("invalid match id: ", matched_id)
           continue
 
-        if len(lost_item.matched_info) >= K:
-          fscore, _ = lost_item.matched_info[0]
-          if score > fscore:
-            lost_item.matched_info[0] = [score, str(item.id)]
-            print("updated lost match: ", matched_id, lost_item.matched_info)
-        elif score > 0.6:
-          lost_item.matched_info.append([score, str(item.id)])
-          print("updated lost match: ", matched_id, lost_item.matched_info)
+        if score < MATCH_THRESHOLD:
+          continue
 
-        lost_item.matched_info.sort(key=lambda x:x[0])
+        if len(lost_item.matched_info) >= K:
+          fscore, fid = lost_item.matched_info[-1] # lowest matching item
+          if score > fscore:
+            # update match_info of the matched lost item: replace first (lowest matching) match with the current item
+            lost_item.matched_info[-1] = [score, str(item.id)]
+            print("replace lost match: ", matched_id, lost_item.matched_info)
+
+            # update match_info of the replaced found item
+            replace_found_item = Item.objects(id=fid, is_lost=False)[0]
+            replace_found_item.matched_info = list(filter(lambda x: x != item.id, replace_found_item.matched_info))
+            replace_found_item.save()
+            print("updated replaced found item: ", replace_found_item.id, replace_found_item.matched_info)
+
+            matched_ids.append(matched_id)
+        else:
+          # update match_info of the matched lost item: append the current item
+          lost_item.matched_info.append([score, str(item.id)])
+          matched_ids.append(matched_id)
+          print("append lost match: ", matched_id, lost_item.matched_info)
+
+        lost_item.matched_info.sort(key=lambda x: -x[0]) # descending order
         lost_item.save()
 
+    item.matched_info = matched_ids
     item.save()
     print("Added item: ", item.id, item)
 
@@ -130,6 +166,7 @@ def deleteItemView(request):
 def getUserLostItems(request):
   username = request.user.username
   items = Item.objects(user=username, is_lost=True)
+  print("getUserLostItems: ", items)
   objects = [item.to_json() for item in items]
   images = [utils.encode_base64(utils.get_image_filename(str(item.id), item.is_lost)) for item in items]
   return Response(
@@ -175,7 +212,7 @@ def getMatchedFoundItems(request):
         print("invalid match id: ", matched_id)
         continue
 
-    print("matched items: ", matched_items)
+    # print("matched items: ", matched_items)
     return Response(
       data={
         'matched_items': matched_items,

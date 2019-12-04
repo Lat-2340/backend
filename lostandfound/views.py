@@ -33,66 +33,66 @@ def addItemView(request):
 
     '''
     NOTE:
-      matched_info = [[score, item_id], ...] for lost items
-      matched_info = [item_id, ...] for found items
+      match_info = [[score, item_id], ...] for lost items
+      match_info = [item_id, ...] for found items
     '''
     if item.is_lost: # find the current best matching found images
       similar_img_ids = get_similar_image(str(item.id), "found/", K)
       similar_img_ids.sort(key=lambda x: -x[0]) # descending order
-      matched_ids = []
+      match_ids = []
 
-      for score, matched_id in similar_img_ids:
+      for score, match_id in similar_img_ids:
         if score < MATCH_THRESHOLD:
           continue
         try:
           # update match_info of the matched found item
-          found_item = Item.objects(id=matched_id, is_lost=False)[0]
-          found_item.matched_info.append(matched_id)
+          found_item = Item.objects(id=match_id)[0]
+          found_item.match_info.append(match_id)
           found_item.save()
-          print("append found match: ", matched_id, found_item.matched_info)
+          print("append found match: ", match_id, found_item.match_info)
 
-          matched_ids.append([score, matched_id])
+          match_ids.append([score, match_id])
         except:
           continue
 
     else: # refresh lost matching when adding found image
       similar_img_ids = get_similar_image(str(item.id), "lost/", float("inf"))
-      matched_ids = []
+      match_ids = []
 
-      for score, matched_id in similar_img_ids:
+      for score, match_id in similar_img_ids:
         try:
-          lost_item = Item.objects(id=matched_id, is_lost=True)[0]
+          lost_item = Item.objects(id=match_id)[0]
         except:
-          print("invalid match id: ", matched_id)
+          print("invalid match id: ", match_id)
           continue
 
         if score < MATCH_THRESHOLD:
           continue
 
-        if len(lost_item.matched_info) >= K:
-          fscore, fid = lost_item.matched_info[-1] # lowest matching item
+        if len(lost_item.match_info) >= K:
+          fscore, fid = lost_item.match_info[-1] # lowest matching item
           if score > fscore:
             # update match_info of the matched lost item: replace first (lowest matching) match with the current item
-            lost_item.matched_info[-1] = [score, str(item.id)]
-            print("replace lost match: ", matched_id, lost_item.matched_info)
+            lost_item.match_info[-1] = [score, str(item.id)]
+            print("replace lost match: ", match_id, lost_item.match_info)
 
             # update match_info of the replaced found item
-            replace_found_item = Item.objects(id=fid, is_lost=False)[0]
-            replace_found_item.matched_info = list(filter(lambda x: x != item.id, replace_found_item.matched_info))
+            replace_found_item = Item.objects(id=fid)[0]
+            replace_found_item.match_info = list(filter(lambda x: x != item.id, replace_found_item.match_info))
             replace_found_item.save()
-            print("updated replaced found item: ", replace_found_item.id, replace_found_item.matched_info)
+            print("updated replaced found item: ", replace_found_item.id, replace_found_item.match_info)
 
-            matched_ids.append(matched_id)
+            match_ids.append(match_id)
         else:
           # update match_info of the matched lost item: append the current item
-          lost_item.matched_info.append([score, str(item.id)])
-          matched_ids.append(matched_id)
-          print("append lost match: ", matched_id, lost_item.matched_info)
+          lost_item.match_info.append([score, str(item.id)])
+          match_ids.append(match_id)
+          print("append lost match: ", match_id, lost_item.match_info)
 
-        lost_item.matched_info.sort(key=lambda x: -x[0]) # descending order
+        lost_item.match_info.sort(key=lambda x: -x[0]) # descending order
         lost_item.save()
 
-    item.matched_info = matched_ids
+    item.match_info = match_ids
     item.save()
     print("Added item: ", item.id, item)
 
@@ -139,6 +139,10 @@ def updateItemView(request):
     status=status.HTTP_200_OK
   )
 
+# get match_id for lost and found item respectively
+def get_match_id(match):
+  return match if len(match) == 1 else match[-1]
+
 @api_view(['DELETE'])
 def deleteItemView(request):
   try:
@@ -149,6 +153,17 @@ def deleteItemView(request):
         status=status.HTTP_500_INTERNAL_SERVER_ERROR
       )
     item = item[0]
+
+    for match in item.match_info:
+      match_id = get_match_id(match)
+      try:
+        match_item = Item.objects(id=match_id)[0]
+        match_item.match_info = list(filter(lambda x: get_match_id(x) != item.id, match_item.match_info))
+        match_item.save()
+        print("delete match: ", match_id, match_item.match_info)
+      except:
+        print("failed to delete match for: ", match_id)
+        continue
 
     utils.remove_image_file(item.id, item.is_lost)
     item.delete()
@@ -204,12 +219,12 @@ def getMatchedFoundItems(request):
     lost_item = lost_item[0]
 
     matched_items, matched_images = [], []
-    for _, matched_id in lost_item.matched_info:
+    for _, match_id in lost_item.match_info:
       try:
-        matched_items.append(Item.objects(id=matched_id)[0].to_json())
-        matched_images.append(utils.encode_base64(utils.get_image_filename(matched_id, is_lost=False)))
+        matched_items.append(Item.objects(id=match_id)[0].to_json())
+        matched_images.append(utils.encode_base64(utils.get_image_filename(match_id, is_lost=False)))
       except:
-        print("invalid match id: ", matched_id)
+        print("invalid match id: ", match_id)
         continue
 
     # print("matched items: ", matched_items)

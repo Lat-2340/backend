@@ -8,6 +8,7 @@ from .models import Item
 from .similarimages import get_similar_image
 from . import utils
 
+K = 3
 
 @api_view(['POST'])
 def addItemView(request):
@@ -30,12 +31,12 @@ def addItemView(request):
     utils.decode_base64(utils.get_image_filename(str(item.id), item.is_lost), img)
 
     if item.is_lost: # find the current best matching found images
-      similar_found_img_ids = get_similar_image(str(item.id), "found/", K=3) # [[score, filename], []]
+      similar_found_img_ids = get_similar_image(str(item.id), "found/", K) # [[score, filename], []]
       similar_found_img_ids.sort(key=lambda x:x[0])
       item.matched_info = similar_found_img_ids
 
     else: # refresh lost matching when adding found image
-      similar_lost_img_ids = get_similar_image(str(item.id), "lost/", K=float("inf"))
+      similar_lost_img_ids = get_similar_image(str(item.id), "lost/", float("inf"))
 
       for score, matched_id in similar_lost_img_ids:
         try:
@@ -44,16 +45,16 @@ def addItemView(request):
           print("invalid match id: ", matched_id)
           continue
 
-        if lost_item.matched_info:
+        if len(lost_item.matched_info) >= K:
           fscore, _ = lost_item.matched_info[0]
           if score > fscore:
             lost_item.matched_info[0] = [score, str(item.id)]
-            lost_item.matched_info.sort(key=lambda x:x[0])
             print("updated lost match: ", matched_id, lost_item.matched_info)
         elif score > 0.6:
           lost_item.matched_info.append([score, str(item.id)])
           print("updated lost match: ", matched_id, lost_item.matched_info)
 
+        lost_item.matched_info.sort(key=lambda x:x[0])
         lost_item.save()
 
     item.save()

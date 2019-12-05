@@ -6,11 +6,12 @@ connect('items')
 class Item(Document):
   user = StringField()
   item_name = StringField(max_length=70)
+  location = StringField(max_length=70)
   is_lost = BooleanField(required=True)
   date_time = DateTimeField(default=datetime.now())
   features =StringField(max_length=150)
   description = StringField(max_length=150)
-  pickup_address = StringField(max_length=70)
+  pickup_address = StringField()
   match_info = ListField()
 
   def __str__(self):

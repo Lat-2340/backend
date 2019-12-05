@@ -28,6 +28,7 @@ def match_lost_item(item):
 
       match_ids.append([score, match_id])
     except:
+      print("failed to append match for: ", match_id)
       continue
 
   return match_ids

@@ -2,7 +2,7 @@
 
 # Custom
 .DS_Store
-usersdb
+# usersdb
 media/
 
 # Byte-compiled / optimized / DLL files

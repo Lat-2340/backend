@@ -157,7 +157,7 @@ def get_match_id(match):
 @api_view(['DELETE'])
 def deleteItemView(request):
   try:
-    item = Item.objects(id=request.data['id'], user=request.user.username)
+    item = Item.objects(id=request.data['id'])
     if len(item) > 1:
       return Response(
         {"error": "More than one item with id %s" % request.data['id']},
@@ -185,6 +185,7 @@ def deleteItemView(request):
       {"error": str(e)},
       status=status.HTTP_400_BAD_REQUEST
     )
+
   return Response(
     {"detail": "Deleted item %s." % item.id},
     status=status.HTTP_204_NO_CONTENT
